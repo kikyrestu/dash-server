@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SystemAuth } from '@/system-auth';
+import { SystemAuth } from '@/lib/system-auth';
 
 const systemAuth = new SystemAuth();
 

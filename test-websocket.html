@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="output"></div>
+    
+    <script>
+// Simple WebSocket test
+console.log('🔍 Testing WebSocket connection...');
+
+const ws = new WebSocket('ws://localhost:3001');
+
+function log(message) {
+    console.log(message);
+    const output = document.getElementById('output');
+    output.innerHTML += message + '<br>';
+}
+
+ws.onopen = () => {
+  log('✅ WebSocket connected successfully!');
+};
+
+ws.onmessage = (event) => {
+  try {
+    const message = JSON.parse(event.data);
+    log('📨 Received: ' + message.type + (message.data ? ` CPU: ${message.data.cpu}%` : ''));
+  } catch (error) {
+    log('📨 Received raw: ' + event.data);
+  }
+};
+
+ws.onclose = (event) => {
+  log('🔌 WebSocket closed. Code: ' + event.code + ' Reason: ' + event.reason);
+};
+
+ws.onerror = (error) => {
+  log('❌ WebSocket error: ' + error);
+};
+
+// Keep connection alive for 10 seconds
+setTimeout(() => {
+  log('⏹️ Closing connection...');
+  ws.close();
+}, 10000);
+    </script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const FileManagerTailwind = () => {
   const [currentPath, setCurrentPath] = useState('/home');
@@ -20,7 +21,7 @@ const FileManagerTailwind = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/api/files?path=${encodeURIComponent(currentPath)}`);
+      const response = await fetch(`${API_BASE_URL}/api/files?path=${encodeURIComponent(currentPath)}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -115,7 +116,7 @@ const FileManagerTailwind = () => {
     } else {
       // Handle file opening/downloading
       try {
-        const response = await fetch(`http://localhost:3001/api/files/download?path=${encodeURIComponent(currentPath + '/' + file.name)}`);
+        const response = await fetch(`${API_BASE_URL}/api/files/download?path=${encodeURIComponent(currentPath + '/' + file.name)}`);
         if (response.ok) {
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
@@ -143,7 +144,7 @@ const FileManagerTailwind = () => {
     formData.append('path', currentPath);
 
     try {
-      const response = await fetch('http://localhost:3001/api/files/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/files/upload`, {
         method: 'POST',
         body: formData
       });
@@ -165,7 +166,7 @@ const FileManagerTailwind = () => {
     if (!newFolderName.trim()) return;
 
     try {
-      const response = await fetch('http://localhost:3001/api/files/mkdir', {
+      const response = await fetch(`${API_BASE_URL}/api/files/mkdir`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

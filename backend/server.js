@@ -63,6 +63,57 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// PAM Authentication function
+const authenticateWithPAM = (username, password) => {
+  return new Promise((resolve, reject) => {
+    // Use python-pam for PAM authentication (more reliable than node modules)
+    const pythonScript = `
+import pam
+import sys
+
+try:
+    p = pam.pam()
+    if p.authenticate(sys.argv[1], sys.argv[2]):
+        print("SUCCESS")
+    else:
+        print("FAILED")
+except Exception as e:
+    print("ERROR: " + str(e))
+`;
+    
+    // Write python script to temp file
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    
+    const tempFile = path.join(os.tmpdir(), 'pam_auth_' + Date.now() + '.py');
+    fs.writeFileSync(tempFile, pythonScript);
+    
+    // Execute python script
+    const { exec } = require('child_process');
+    exec(`python3 ${tempFile} "${username}" "${password}"`, (error, stdout, stderr) => {
+      // Clean up temp file
+      try {
+        fs.unlinkSync(tempFile);
+      } catch (e) {}
+      
+      if (error) {
+        reject(new Error('PAM authentication failed'));
+        return;
+      }
+      
+      const result = stdout.trim();
+      if (result === 'SUCCESS') {
+        resolve(true);
+      } else if (result.startsWith('ERROR:')) {
+        reject(new Error(result.substring(6)));
+      } else {
+        reject(new Error('Invalid credentials'));
+      }
+    });
+  });
+};
+
 // WebSocket Server
 const wss = new WebSocket.Server({ server });
 
@@ -3580,39 +3631,46 @@ app.post('/api/auth/login', async (req, res) => {
 
     let authResult = { success: false };
 
-    // Try system authentication first (if not explicitly disabled)
-    if (authType === 'auto' || authType === 'system') {
-      console.log(`🔍 Attempting system authentication for: ${username}`);
-      authResult = await validateSystemUserAlternative(username, password);
-      
-      if (authResult.success) {
-        console.log(`✅ System authentication successful for: ${username}`);
-        
-        // Generate JWT token for system user
-        const token = jwt.sign(
-          { 
-            id: `system_${username}`,
-            username: authResult.user.username,
-            role: authResult.user.role,
-            source: 'system'
-          },
-          JWT_SECRET,
-          { expiresIn: '24h' }
-        );
-
-        return res.json({
-          success: true,
-          token,
-          user: authResult.user,
-          message: `Welcome ${username}! Authenticated via system account.`
-        });
-      } else {
-        console.log(`❌ System authentication failed: ${authResult.error}`);
+    // Try PAM authentication first (if not explicitly disabled)
+    if (authType === 'auto' || authType === 'pam' || authType === 'system') {
+      console.log(`🔍 Attempting PAM authentication for: ${username}`);
+      try {
+        const pamSuccess = await authenticateWithPAM(username, password);
+        if (pamSuccess) {
+          console.log(`✅ PAM authentication successful for: ${username}`);
+          
+          // Generate JWT token for PAM user
+          const token = jwt.sign(
+            { 
+              username, 
+              type: 'pam',
+              role: 'user',
+              uid: process.getuid(),
+              gid: process.getgid()
+            }, 
+            JWT_SECRET,
+            { expiresIn: '24h' }
+          );
+          
+          return res.json({
+            success: true,
+            message: 'Login successful using PAM authentication',
+            token,
+            user: {
+              username,
+              type: 'pam',
+              role: 'user',
+              displayName: username
+            }
+          });
+        }
+      } catch (error) {
+        console.log(`❌ PAM authentication failed for: ${username} - ${error.message}`);
       }
     }
 
-    // Fallback to traditional authentication if system auth fails or is disabled
-    if ((authType === 'auto' && !authResult.success) || authType === 'traditional') {
+    // Fallback to traditional authentication if PAM fails or is disabled
+    if ((authType === 'auto' || authType === 'traditional') && !authResult.success) {
       console.log(`🔍 Attempting traditional authentication for: ${username}`);
       
       const user = ADMIN_USERS.find(u => u.username === username);

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
-import { API_BASE_URL } from '../config/api';
 
 const NetworkStatusTailwind = () => {
   const [networkInfo, setNetworkInfo] = useState(null);

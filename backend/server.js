@@ -288,6 +288,156 @@ app.get('/api/history', (req, res) => {
   res.json(metricsHistory);
 });
 
+// Server Information Endpoint
+app.get('/api/server-info', async (req, res) => {
+  try {
+    const os = require('os');
+    const { exec } = require('child_process');
+    const { promisify } = require('util');
+    const execAsync = promisify(exec);
+
+    // Get system information
+    const hostname = os.hostname();
+    const platform = os.platform();
+    const type = os.type();
+    const arch = os.arch();
+    const uptime = os.uptime();
+    
+    // Format uptime
+    const days = Math.floor(uptime / 86400);
+    const hours = Math.floor((uptime % 86400) / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const formattedUptime = `${days}d ${hours}h ${minutes}m`;
+
+    // Get CPU information
+    const cpus = os.cpus();
+    const cpuModel = cpus[0]?.model || 'Unknown';
+    const cpuCores = cpus.length;
+    const cpuSpeed = `${cpus[0]?.speed || 0} MHz`;
+
+    // Get memory information
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+    const memoryUsagePercent = Math.round((usedMem / totalMem) * 100);
+
+    // Format memory sizes
+    const formatBytes = (bytes) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    // Get disk information (Linux specific)
+    let diskInfo = {
+      total: 'N/A',
+      used: 'N/A',
+      free: 'N/A',
+      usagePercent: 0
+    };
+
+    try {
+      const { stdout } = await execAsync('df -h /');
+      const lines = stdout.trim().split('\n');
+      if (lines.length > 1) {
+        const parts = lines[1].split(/\s+/);
+        if (parts.length >= 6) {
+          diskInfo = {
+            total: parts[1],
+            used: parts[2],
+            free: parts[3],
+            usagePercent: parseInt(parts[4].replace('%', ''))
+          };
+        }
+      }
+    } catch (diskError) {
+      console.error('Error getting disk info:', diskError);
+    }
+
+    // Get CPU usage (Linux specific)
+    let cpuUsage = 'N/A';
+    try {
+      const { stdout } = await execAsync("top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1");
+      cpuUsage = `${parseFloat(stdout).toFixed(1)}%`;
+    } catch (cpuError) {
+      console.error('Error getting CPU usage:', cpuError);
+    }
+
+    // Get CPU temperature (Linux specific)
+    let cpuTemp = 'N/A';
+    try {
+      const { stdout } = await execAsync("cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | head -1 | awk '{print $1/1000\"°C\"}'");
+      if (stdout.trim()) {
+        cpuTemp = stdout.trim();
+      }
+    } catch (tempError) {
+      console.error('Error getting CPU temperature:', tempError);
+    }
+
+    // Get network information
+    const networkInterfaces = os.networkInterfaces();
+    let ipAddress = 'N/A';
+    let macAddress = 'N/A';
+    let networkInterface = 'N/A';
+
+    // Find the first non-internal IPv4 address
+    for (const [iface, addresses] of Object.entries(networkInterfaces)) {
+      for (const addr of addresses) {
+        if (addr.family === 'IPv4' && !addr.internal) {
+          ipAddress = addr.address;
+          macAddress = addr.mac;
+          networkInterface = iface;
+          break;
+        }
+      }
+      if (ipAddress !== 'N/A') break;
+    }
+
+    // Get network speed (Linux specific)
+    let networkSpeed = 'N/A';
+    try {
+      const { stdout } = await execAsync(`ethtool ${networkInterface} 2>/dev/null | grep Speed | awk '{print $2}'`);
+      if (stdout.trim()) {
+        networkSpeed = stdout.trim();
+      }
+    } catch (speedError) {
+      console.error('Error getting network speed:', speedError);
+    }
+
+    const serverInfo = {
+      hostname,
+      platform,
+      type,
+      arch,
+      uptime: formattedUptime,
+      cpuModel,
+      cpuCores,
+      cpuSpeed,
+      cpuUsage,
+      cpuTemp,
+      memoryTotal: formatBytes(totalMem),
+      memoryUsed: formatBytes(usedMem),
+      memoryFree: formatBytes(freeMem),
+      memoryUsagePercent,
+      diskTotal: diskInfo.total,
+      diskUsed: diskInfo.used,
+      diskFree: diskInfo.free,
+      diskUsagePercent: diskInfo.usagePercent,
+      ipAddress,
+      macAddress,
+      networkInterface,
+      networkSpeed
+    };
+
+    res.json(serverInfo);
+  } catch (error) {
+    console.error('Error fetching server info:', error);
+    res.status(500).json({ error: 'Failed to fetch server information' });
+  }
+});
+
 // Endpoint for agent to send metrics
 app.post('/api/metrics', (req, res) => {
   const newMetrics = {

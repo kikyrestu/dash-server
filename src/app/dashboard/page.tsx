@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ServerInfo from '@/components/ServerInfo';
 import { 
   Server, 
   User, 
@@ -16,7 +17,8 @@ import {
   LogOut,
   Settings,
   Monitor,
-  Database
+  Database,
+  Info
 } from 'lucide-react';
 
 interface UserInfo {
@@ -233,6 +235,15 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Server Information Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-6">
+            <Info className="h-6 w-6 text-blue-500" />
+            <h2 className="text-2xl font-bold text-white">Server Information</h2>
+          </div>
+          <ServerInfo />
         </div>
 
         {/* Dashboard Features */}

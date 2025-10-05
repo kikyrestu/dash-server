@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const WebServicesMonitorTailwind = () => {
   const [services, setServices] = useState([]);
@@ -17,7 +18,7 @@ const WebServicesMonitorTailwind = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/services', {
+      const response = await fetch(`${API_BASE_URL}/api/services`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

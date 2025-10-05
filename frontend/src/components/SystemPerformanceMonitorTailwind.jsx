@@ -19,6 +19,7 @@ import {
   MdBatteryAlert,
   MdDeviceThermostat
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const SystemPerformanceMonitorTailwind = () => {
   const [performanceData, setPerformanceData] = useState(null);
@@ -37,7 +38,7 @@ const SystemPerformanceMonitorTailwind = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/performance/overview', {
+      const response = await fetch(`${API_BASE_URL}/api/performance/overview`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -76,7 +77,7 @@ const SystemPerformanceMonitorTailwind = () => {
   const fetchProcesses = async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/performance/processes', {
+      const response = await fetch(`${API_BASE_URL}/api/performance/processes`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -96,7 +97,7 @@ const SystemPerformanceMonitorTailwind = () => {
   const killProcess = async (pid, signal = 'TERM') => {
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/performance/processes/kill', {
+      const response = await fetch(`${API_BASE_URL}/api/performance/processes/kill`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

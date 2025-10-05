@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const StorageManagerTailwind = () => {
   const [storageInfo, setStorageInfo] = useState(null);
@@ -24,7 +25,7 @@ const StorageManagerTailwind = () => {
   const fetchStorageInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/storage');
+      const response = await fetch(`${API_BASE_URL}/api/storage`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -53,7 +54,7 @@ const StorageManagerTailwind = () => {
 
     setSudoVerifying(true);
     try {
-      const response = await fetch('http://localhost:3001/api/storage/sudo', {
+      const response = await fetch(`${API_BASE_URL}/api/storage/sudo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: sudoPassword })
@@ -78,7 +79,7 @@ const StorageManagerTailwind = () => {
 
   const handleClearSudo = async () => {
     try {
-      await fetch('http://localhost:3001/api/storage/sudo/clear', {
+      await fetch(`${API_BASE_URL}/api/storage/sudo/clear`, {
         method: 'POST'
       });
       setHasSudoAccess(false);

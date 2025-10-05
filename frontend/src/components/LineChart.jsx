@@ -24,14 +24,15 @@ const LineChart = ({ data, title, color = '#3b82f6', height = 200 }) => {
     );
   }
 
-  const maxValue = Math.max(...data);
-  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data.filter(v => typeof v === 'number' && !isNaN(v)));
+  const minValue = Math.min(...data.filter(v => typeof v === 'number' && !isNaN(v)));
   const range = maxValue - minValue || 1;
 
   const points = data.map((value, index) => {
     const x = (index / (data.length - 1)) * 100;
-    const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
-    const y = 100 - ((safeValue - minValue) / range) * 100;
+    const safeValue = typeof value === 'number' && !isNaN(value) && isFinite(value) ? value : 0;
+    const normalizedValue = Math.max(minValue, Math.min(maxValue, safeValue));
+    const y = 100 - ((normalizedValue - minValue) / range) * 100;
     return `${x},${y}`;
   }).join(' ');
 
@@ -98,8 +99,9 @@ const LineChart = ({ data, title, color = '#3b82f6', height = 200 }) => {
           {/* Data points */}
           {data.map((value, index) => {
             const x = (index / (data.length - 1)) * 100;
-            const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
-            const y = 100 - ((safeValue - minValue) / range) * 100;
+            const safeValue = typeof value === 'number' && !isNaN(value) && isFinite(value) ? value : 0;
+            const normalizedValue = Math.max(minValue, Math.min(maxValue, safeValue));
+            const y = 100 - ((normalizedValue - minValue) / range) * 100;
             return (
               <circle
                 key={index}

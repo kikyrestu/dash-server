@@ -39,15 +39,16 @@ const LineChartTailwind = ({ data, title, color = '#3b82f6', height = 200, icon 
     );
   }
 
-  const maxValue = Math.max(...data);
-  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data.filter(v => typeof v === 'number' && !isNaN(v)));
+  const minValue = Math.min(...data.filter(v => typeof v === 'number' && !isNaN(v)));
   const range = maxValue - minValue || 1;
-  const avgValue = data.reduce((a, b) => a + b, 0) / data.length;
+  const avgValue = data.reduce((a, b) => a + (typeof b === 'number' && !isNaN(b) ? b : 0), 0) / data.length;
 
   const points = data.map((value, index) => {
     const x = (index / (data.length - 1)) * 100;
-    const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
-    const y = 100 - ((safeValue - minValue) / range) * 100;
+    const safeValue = typeof value === 'number' && !isNaN(value) && isFinite(value) ? value : 0;
+    const normalizedValue = Math.max(minValue, Math.min(maxValue, safeValue));
+    const y = 100 - ((normalizedValue - minValue) / range) * 100;
     return `${x},${y}`;
   }).join(' ');
 
@@ -130,8 +131,9 @@ const LineChartTailwind = ({ data, title, color = '#3b82f6', height = 200, icon 
           {/* Data Points */}
           {data.map((value, index) => {
             const x = (index / (data.length - 1)) * 100;
-            const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
-            const y = 100 - ((safeValue - minValue) / range) * 100;
+            const safeValue = typeof value === 'number' && !isNaN(value) && isFinite(value) ? value : 0;
+            const normalizedValue = Math.max(minValue, Math.min(maxValue, safeValue));
+            const y = 100 - ((normalizedValue - minValue) / range) * 100;
             return (
               <circle
                 key={index}

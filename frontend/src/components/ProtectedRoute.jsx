@@ -5,6 +5,14 @@ import { MdComputer } from 'react-icons/md';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  
+  // Check if we're in debug mode
+  const isDebugMode = window.location.search.includes('debug=true');
+
+  // Bypass authentication for debug mode
+  if (isDebugMode) {
+    return children;
+  }
 
   if (isLoading) {
     return (

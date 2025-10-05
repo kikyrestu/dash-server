@@ -24,6 +24,27 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
+# Install backend dependencies
+cd "$SCRIPT_DIR/backend"
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing backend dependencies..."
+    npm install
+fi
+
+# Install agent dependencies
+cd "$SCRIPT_DIR/agent"
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing agent dependencies..."
+    npm install
+fi
+
+# Install frontend dependencies
+cd "$SCRIPT_DIR/frontend"
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing frontend dependencies..."
+    npm install
+fi
+
 echo ""
 echo "🔧 Starting Backend Server..."
 cd "$SCRIPT_DIR/backend" && npm start &

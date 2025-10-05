@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL, WS_BASE_URL } from '../config/api';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -282,7 +283,7 @@ const Settings = () => {
                 color: '#374151',
                 fontFamily: 'monospace'
               }}>
-                http://localhost:3001
+                {API_BASE_URL}
               </div>
             </div>
 
@@ -305,7 +306,7 @@ const Settings = () => {
                 color: '#374151',
                 fontFamily: 'monospace'
               }}>
-                ws://localhost:3001
+                {WS_BASE_URL}
               </div>
             </div>
 

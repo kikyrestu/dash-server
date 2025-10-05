@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import { WS_BASE_URL } from '../config/api';
 
-const useWebSocket = (url) => {
+const useWebSocket = (endpoint = '') => {
   const [data, setData] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('Connecting');
   const ws = useRef(null);
+
+  // Construct full URL
+  const fullUrl = endpoint.startsWith('ws://') ? endpoint : `${WS_BASE_URL}${endpoint}`;
 
   useEffect(() => {
     let isMounted = true;
@@ -11,11 +15,11 @@ const useWebSocket = (url) => {
     const connect = () => {
       if (!isMounted) return;
       
-      console.log('🔌 Connecting to WebSocket:', url);
+      console.log('🔌 Connecting to WebSocket:', fullUrl);
       setConnectionStatus('Connecting');
       
       try {
-        ws.current = new WebSocket(url);
+        ws.current = new WebSocket(fullUrl);
         
         ws.current.onopen = () => {
           if (isMounted) {
@@ -74,7 +78,7 @@ const useWebSocket = (url) => {
         ws.current = null;
       }
     };
-  }, [url]);
+  }, [fullUrl]);
 
   return { data, connectionStatus };
 };

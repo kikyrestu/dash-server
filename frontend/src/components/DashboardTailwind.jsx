@@ -16,7 +16,7 @@ import SecurityCenter from './SecurityCenter';
 import Settings from './Settings';
 
 const DashboardTailwind = () => {
-  const { data, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { data, connectionStatus } = useWebSocket();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [history, setHistory] = useState({

@@ -29,7 +29,7 @@ import {
 } from 'react-icons/md';
 
 const Dashboard = () => {
-  const { data, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { data, connectionStatus } = useWebSocket();
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentTime, setCurrentTime] = useState(new Date());

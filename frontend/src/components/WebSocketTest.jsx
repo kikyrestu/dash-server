@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import useWebSocket from '../hooks/useWebSocketDebug';
 
+import { WS_BASE_URL } from '../config/api';
+
 const WebSocketTest = () => {
-  const { data, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { data, connectionStatus } = useWebSocket();
   const [messageCount, setMessageCount] = useState(0);
 
   useEffect(() => {
@@ -110,7 +112,7 @@ const WebSocketTest = () => {
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
         <h2>Debug Info</h2>
-        <p>WebSocket URL: ws://localhost:3001</p>
+        <p>WebSocket URL: {WS_BASE_URL}</p>
         <p>Page loaded at: {new Date().toLocaleString()}</p>
         <button 
           onClick={() => window.location.reload()}

@@ -16,7 +16,6 @@ import {
   MdSecurity,
   MdClose
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const StorageManager = () => {
   const [storageInfo, setStorageInfo] = useState(null);

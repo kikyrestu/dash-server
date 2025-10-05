@@ -23,7 +23,6 @@ import {
   MdCheckCircle,
   MdRadio
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const PortManager = () => {
   const [ports, setPorts] = useState([]);

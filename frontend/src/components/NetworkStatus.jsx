@@ -11,7 +11,6 @@ import {
   MdComputer,
   MdHome
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const NetworkStatus = () => {
   const [networkInfo, setNetworkInfo] = useState(null);

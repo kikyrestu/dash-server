@@ -26,7 +26,6 @@ import {
   MdBarChart,
   MdTrendingUp
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const FileManager = () => {
   const [currentPath, setCurrentPath] = useState('/home');

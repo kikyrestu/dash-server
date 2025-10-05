@@ -20,7 +20,6 @@ import {
   MdBatteryAlert,
   MdDeviceThermostat
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const SystemPerformanceMonitorTailwind = () => {
   const [performanceData, setPerformanceData] = useState(null);

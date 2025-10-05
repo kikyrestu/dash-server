@@ -10,7 +10,6 @@ import {
   MdSecurity,
   MdClose
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const DatabaseManager = () => {
   const [databases, setDatabases] = useState([]);

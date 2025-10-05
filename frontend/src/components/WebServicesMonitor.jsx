@@ -16,7 +16,6 @@ import {
   MdCheckCircle,
   MdLabel
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const WebServicesMonitor = () => {
   const [services, setServices] = useState([]);

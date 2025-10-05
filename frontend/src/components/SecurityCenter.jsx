@@ -12,7 +12,6 @@ import {
   MdLock,
   MdReportProblem
 } from 'react-icons/md';
-import { API_BASE_URL } from '../config/api';
 
 const SecurityCenter = () => {
   const [loading, setLoading] = useState(true);

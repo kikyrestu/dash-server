@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../config/api';
-import { API_BASE_URL } from '../config/api';
 
 const LogManagerTailwind = () => {
   const [logSources, setLogSources] = useState([]);

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '../config/api';
-import { API_BASE_URL } from '../config/api';
 
 const DockerManagerTailwind = () => {
   const [containers, setContainers] = useState([]);

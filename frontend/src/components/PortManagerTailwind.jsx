@@ -13,6 +13,7 @@ import {
   MdCheckCircle,
   MdAdd
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const PortManagerTailwind = () => {
   const [ports, setPorts] = useState([]);
@@ -38,7 +39,7 @@ const PortManagerTailwind = () => {
   const fetchPortsInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/ports');
+      const response = await fetch(`${API_BASE_URL}/api/ports`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -68,7 +69,7 @@ const PortManagerTailwind = () => {
 
   const fetchFirewallRules = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/firewall');
+      const response = await fetch(`${API_BASE_URL}/api/firewall`);
       if (response.ok) {
         // eslint-disable-next-line no-unused-vars
         const data = await response.json();
@@ -83,7 +84,7 @@ const PortManagerTailwind = () => {
     setScanning(true);
     setScanResults([]);
     try {
-      const response = await fetch('http://localhost:3001/api/ports/scan', {
+      const response = await fetch(`${API_BASE_URL}/api/ports/scan`, {
         method: 'POST'
       });
       const data = await response.json();
@@ -100,7 +101,7 @@ const PortManagerTailwind = () => {
     if (!portToBlock.trim()) return;
 
     try {
-      const response = await fetch('http://localhost:3001/api/firewall/rule', {
+      const response = await fetch(`${API_BASE_URL}/api/firewall/rule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,7 +129,7 @@ const PortManagerTailwind = () => {
 
     setOpeningPort(true);
     try {
-      const response = await fetch('http://localhost:3001/api/ports/open', {
+      const response = await fetch(`${API_BASE_URL}/api/ports/open`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

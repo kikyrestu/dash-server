@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const DatabaseManagerTailwind = () => {
   const [databases, setDatabases] = useState([]);
@@ -18,7 +19,7 @@ const DatabaseManagerTailwind = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3001/api/databases');
+      const response = await fetch(`${API_BASE_URL}/api/databases`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -48,7 +49,7 @@ const DatabaseManagerTailwind = () => {
     setConnecting(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3001/api/database/connect', {
+      const response = await fetch(`${API_BASE_URL}/api/database/connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,7 +125,7 @@ const DatabaseManagerTailwind = () => {
     setExecuting(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3001/api/database/query', {
+      const response = await fetch(`${API_BASE_URL}/api/database/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

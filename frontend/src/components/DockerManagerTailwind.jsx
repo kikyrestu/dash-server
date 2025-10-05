@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const DockerManagerTailwind = () => {
   const [containers, setContainers] = useState([]);
@@ -25,7 +26,7 @@ const DockerManagerTailwind = () => {
 
   const loadContainers = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/docker/containers', {
+      const response = await fetch(`${API_BASE_URL}/api/docker/containers`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -41,7 +42,7 @@ const DockerManagerTailwind = () => {
 
   const loadImages = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/docker/images', {
+      const response = await fetch(`${API_BASE_URL}/api/docker/images`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -57,7 +58,7 @@ const DockerManagerTailwind = () => {
 
   const loadSystemInfo = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/docker/system/info', {
+      const response = await fetch(`${API_BASE_URL}/api/docker/system/info`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -97,7 +98,7 @@ const DockerManagerTailwind = () => {
   const manageContainer = async (containerId, action) => {
     setActionLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/docker/containers/${containerId}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/api/docker/containers/${containerId}/${action}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -122,7 +123,7 @@ const DockerManagerTailwind = () => {
 
   const loadContainerLogs = async (containerId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/docker/containers/${containerId}/logs?tail=50`, {
+      const response = await fetch(`${API_BASE_URL}/api/docker/containers/${containerId}/logs?tail=50`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -146,7 +147,7 @@ const DockerManagerTailwind = () => {
     
     setActionLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/docker/images/pull', {
+      const response = await fetch(`${API_BASE_URL}/api/docker/images/pull`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +179,7 @@ const DockerManagerTailwind = () => {
     
     setActionLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/docker/images/${imageId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/docker/images/${imageId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -250,7 +251,7 @@ const DockerManagerTailwind = () => {
         restartPolicy: createContainerData.restartPolicy
       };
 
-      const response = await fetch('http://localhost:3001/api/docker/containers/run', {
+      const response = await fetch(`${API_BASE_URL}/api/docker/containers/run`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

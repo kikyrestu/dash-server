@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const LogManagerTailwind = () => {
   const [logSources, setLogSources] = useState([]);
@@ -45,7 +46,7 @@ const LogManagerTailwind = () => {
       setError(null);
       
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/logs/sources', {
+      const response = await fetch(`${API_BASE_URL}/api/logs/sources`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -80,7 +81,7 @@ const LogManagerTailwind = () => {
       const offset = (page - 1) * linesPerPage;
       const token = localStorage.getItem('admin_token');
       const response = await fetch(
-        `http://localhost:3001/api/logs/${source.id}?lines=${linesPerPage}&offset=${offset}`,
+        `${API_BASE_URL}/api/logs/${source.id}?lines=${linesPerPage}&offset=${offset}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -115,7 +116,7 @@ const LogManagerTailwind = () => {
       
       const token = localStorage.getItem('admin_token');
       const eventSource = new EventSource(
-        `http://localhost:3001/api/logs/${source.id}/stream?token=${token}`
+        `${API_BASE_URL}/api/logs/${source.id}/stream?token=${token}`
       );
       
       eventSourceRef.current = eventSource;
@@ -172,7 +173,7 @@ const LogManagerTailwind = () => {
       setError(null);
       
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('http://localhost:3001/api/logs/search', {
+      const response = await fetch(`${API_BASE_URL}/api/logs/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

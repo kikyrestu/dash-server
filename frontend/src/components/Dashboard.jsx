@@ -19,6 +19,7 @@ import SystemPerformanceMonitorTailwind from './SystemPerformanceMonitorTailwind
 import TailwindDemo from './TailwindDemo';
 import Settings from './Settings';
 import { useAuth } from '../contexts/AuthContext';
+import { WS_BASE_URL } from '../config/api';
 import { 
   MdCalendarToday, 
   MdSchedule, 
@@ -29,7 +30,7 @@ import {
 } from 'react-icons/md';
 
 const Dashboard = () => {
-  const { data, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { data, connectionStatus } = useWebSocket(WS_BASE_URL);
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentTime, setCurrentTime] = useState(new Date());

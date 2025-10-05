@@ -22,6 +22,7 @@ import {
   MdCheckCircle,
   MdRadio
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const PortManager = () => {
   const [ports, setPorts] = useState([]);
@@ -50,7 +51,7 @@ const PortManager = () => {
   const fetchPortsInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/ports');
+      const response = await fetch(`${API_BASE_URL}/api/ports`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -67,7 +68,7 @@ const PortManager = () => {
 
   const fetchFirewallRules = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/firewall');
+      const response = await fetch(`${API_BASE_URL}/api/firewall`);
       if (response.ok) {
         const data = await response.json();
         setFirewallRules(data.rules || []);
@@ -80,7 +81,7 @@ const PortManager = () => {
   const scanPorts = async (startPort = 1, endPort = 1000) => {
     try {
       setScanning(true);
-      const response = await fetch('http://localhost:3001/api/ports/scan', {
+      const response = await fetch(`${API_BASE_URL}/api/ports/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ startPort, endPort })
@@ -102,7 +103,7 @@ const PortManager = () => {
 
   const managePort = async (port, action) => {
     try {
-      const response = await fetch('http://localhost:3001/api/firewall/manage', {
+      const response = await fetch(`${API_BASE_URL}/api/firewall/manage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ port, action })
@@ -142,7 +143,7 @@ const PortManager = () => {
       setOpeningPort(true);
       setError(null);
 
-      const response = await fetch('http://localhost:3001/api/firewall/manage', {
+      const response = await fetch(`${API_BASE_URL}/api/firewall/manage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

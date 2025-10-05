@@ -10,6 +10,7 @@ import {
   MdComputer,
   MdHome
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const NetworkStatus = () => {
   const [networkInfo, setNetworkInfo] = useState(null);
@@ -26,7 +27,7 @@ const NetworkStatus = () => {
   const fetchNetworkInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/network');
+      const response = await fetch(`${API_BASE_URL}/api/network`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

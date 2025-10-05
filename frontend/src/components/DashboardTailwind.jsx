@@ -14,9 +14,10 @@ import WebServicesMonitor from './WebServicesMonitor';
 import PortManager from './PortManager';
 import SecurityCenter from './SecurityCenter';
 import Settings from './Settings';
+import { WS_BASE_URL } from '../config/api';
 
 const DashboardTailwind = () => {
-  const { data, connectionStatus } = useWebSocket('ws://localhost:3001');
+  const { data, connectionStatus } = useWebSocket(WS_BASE_URL);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [history, setHistory] = useState({

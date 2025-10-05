@@ -15,6 +15,7 @@ import {
   MdCheckCircle,
   MdLabel
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const WebServicesMonitor = () => {
   const [services, setServices] = useState([]);
@@ -32,7 +33,7 @@ const WebServicesMonitor = () => {
   const fetchServicesInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/services');
+      const response = await fetch(`${API_BASE_URL}/api/services`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

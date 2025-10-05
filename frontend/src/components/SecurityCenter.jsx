@@ -11,6 +11,7 @@ import {
   MdLock,
   MdReportProblem
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const SecurityCenter = () => {
   const [loading, setLoading] = useState(true);
@@ -48,13 +49,13 @@ const SecurityCenter = () => {
         firewallStatusRes,
         securityAlertsRes
       ] = await Promise.allSettled([
-        fetch('http://localhost:3001/api/security/login-attempts'),
-        fetch('http://localhost:3001/api/security/vulnerabilities'),
-        fetch('http://localhost:3001/api/security/audit-logs'),
-        fetch('http://localhost:3001/api/security/active-sessions'),
-        fetch('http://localhost:3001/api/security/ssl-certificates'),
-        fetch('http://localhost:3001/api/security/firewall-status'),
-        fetch('http://localhost:3001/api/security/alerts')
+        fetch(`${API_BASE_URL}/api/security/login-attempts`),
+        fetch(`${API_BASE_URL}/api/security/vulnerabilities`),
+        fetch(`${API_BASE_URL}/api/security/audit-logs`),
+        fetch(`${API_BASE_URL}/api/security/active-sessions`),
+        fetch(`${API_BASE_URL}/api/security/ssl-certificates`),
+        fetch(`${API_BASE_URL}/api/security/firewall-status`),
+        fetch(`${API_BASE_URL}/api/security/alerts`)
       ]);
 
       const data = {
@@ -87,7 +88,7 @@ const SecurityCenter = () => {
   const scanVulnerabilities = async () => {
     try {
       setScanningVulns(true);
-      const response = await fetch('http://localhost:3001/api/security/scan-vulnerabilities', {
+      const response = await fetch(`${API_BASE_URL}/api/security/scan-vulnerabilities`, {
         method: 'POST'
       });
       

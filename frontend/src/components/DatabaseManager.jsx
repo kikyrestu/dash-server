@@ -9,6 +9,7 @@ import {
   MdSecurity,
   MdClose
 } from 'react-icons/md';
+import { API_BASE_URL } from '../config/api';
 
 const DatabaseManager = () => {
   const [databases, setDatabases] = useState([]);
@@ -28,7 +29,7 @@ const DatabaseManager = () => {
   const loadDatabases = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/databases');
+      const response = await fetch(`${API_BASE_URL}/api/databases`);
       const result = await response.json();
       setDatabases(result.databases || []);
       setConnectionStatus(result.status || {});
@@ -41,7 +42,7 @@ const DatabaseManager = () => {
 
   const connectToDatabase = async (dbInfo, password = '') => {
     try {
-      const response = await fetch('http://localhost:3001/api/database/connect', {
+      const response = await fetch(`${API_BASE_URL}/api/database/connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +83,7 @@ const DatabaseManager = () => {
     if (!selectedDb || !query.trim()) return;
 
     try {
-      const response = await fetch('http://localhost:3001/api/database/query', {
+      const response = await fetch(`${API_BASE_URL}/api/database/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

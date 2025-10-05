@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import ServerInfo from '@/components/ServerInfo';
+import ServerInfoComponent from '@/components/ServerInfo';
 import { 
   Server, 
   User, 
@@ -243,7 +243,7 @@ export default function Dashboard() {
             <Info className="h-6 w-6 text-blue-500" />
             <h2 className="text-2xl font-bold text-white">Server Information</h2>
           </div>
-          <ServerInfo />
+          <ServerInfoComponent />
         </div>
 
         {/* Dashboard Features */}

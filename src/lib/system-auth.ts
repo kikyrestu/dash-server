@@ -45,25 +45,31 @@ export class SystemAuth {
   // Authenticate user dengan system commands
   async authenticate(username: string, password: string): Promise<AuthResult> {
     return new Promise((resolve) => {
-      // Method 1: Use su command (most reliable)
-      const command = `echo '${password.replace(/'/g, "'\\''")}' | ${this.suPath} - ${username} -c 'echo "AUTH_SUCCESS"' 2>/dev/null`;
-      
-      exec(command, (error, stdout, stderr) => {
-        if (error || stderr) {
-          // Method 2: Try with sudo if available
-          const sudoCommand = `echo '${password.replace(/'/g, "'\\''")}' | ${this.sudoPath} -S -u ${username} echo "AUTH_SUCCESS" 2>/dev/null`;
+      // Special handling for root user
+      if (username === 'root') {
+        // Method 1: Direct root authentication with su
+        const command = `echo '${password.replace(/'/g, "'\\''")}' | ${this.suPath} - root -c 'echo "AUTH_SUCCESS"' 2>/dev/null`;
+        
+        exec(command, (error, stdout, stderr) => {
+          if (!error && stdout.trim() === 'AUTH_SUCCESS') {
+            const token = this.generateJWT(username);
+            resolve({
+              success: true,
+              token: token,
+              user: {
+                username: username,
+                authType: 'system',
+                loginTime: new Date().toISOString()
+              }
+            });
+            return;
+          }
+          
+          // Method 2: Try with sudo -i for root
+          const sudoCommand = `echo '${password.replace(/'/g, "'\\''")}' | ${this.sudoPath} -S -i root echo "AUTH_SUCCESS" 2>/dev/null`;
           
           exec(sudoCommand, (sudoError, sudoStdout, sudoStderr) => {
-            if (sudoError || sudoStderr) {
-              resolve({
-                success: false,
-                error: 'Authentication failed',
-                message: 'Invalid username or password'
-              });
-              return;
-            }
-
-            if (sudoStdout.trim() === 'AUTH_SUCCESS') {
+            if (!sudoError && sudoStdout.trim() === 'AUTH_SUCCESS') {
               const token = this.generateJWT(username);
               resolve({
                 success: true,
@@ -77,33 +83,73 @@ export class SystemAuth {
             } else {
               resolve({
                 success: false,
-                error: 'Authentication failed',
-                message: 'Invalid username or password'
+                error: 'Root authentication failed',
+                message: 'Invalid root password or sudo not configured properly'
               });
             }
           });
-          return;
-        }
+        });
+      } else {
+        // Regular user authentication
+        const command = `echo '${password.replace(/'/g, "'\\''")}' | ${this.suPath} - ${username} -c 'echo "AUTH_SUCCESS"' 2>/dev/null`;
+        
+        exec(command, (error, stdout, stderr) => {
+          if (error || stderr) {
+            // Method 2: Try with sudo if available
+            const sudoCommand = `echo '${password.replace(/'/g, "'\\''")}' | ${this.sudoPath} -S -u ${username} echo "AUTH_SUCCESS" 2>/dev/null`;
+            
+            exec(sudoCommand, (sudoError, sudoStdout, sudoStderr) => {
+              if (sudoError || sudoStderr) {
+                resolve({
+                  success: false,
+                  error: 'Authentication failed',
+                  message: 'Invalid username or password'
+                });
+                return;
+              }
 
-        if (stdout.trim() === 'AUTH_SUCCESS') {
-          const token = this.generateJWT(username);
-          resolve({
-            success: true,
-            token: token,
-            user: {
-              username: username,
-              authType: 'system',
-              loginTime: new Date().toISOString()
-            }
-          });
-        } else {
-          resolve({
-            success: false,
-            error: 'Authentication failed',
-            message: 'Invalid username or password'
-          });
-        }
-      });
+              if (sudoStdout.trim() === 'AUTH_SUCCESS') {
+                const token = this.generateJWT(username);
+                resolve({
+                  success: true,
+                  token: token,
+                  user: {
+                    username: username,
+                    authType: 'system',
+                    loginTime: new Date().toISOString()
+                  }
+                });
+              } else {
+                resolve({
+                  success: false,
+                  error: 'Authentication failed',
+                  message: 'Invalid username or password'
+                });
+              }
+            });
+            return;
+          }
+
+          if (stdout.trim() === 'AUTH_SUCCESS') {
+            const token = this.generateJWT(username);
+            resolve({
+              success: true,
+              token: token,
+              user: {
+                username: username,
+                authType: 'system',
+                loginTime: new Date().toISOString()
+              }
+            });
+          } else {
+            resolve({
+              success: false,
+              error: 'Authentication failed',
+              message: 'Invalid username or password'
+            });
+          }
+        });
+      }
     });
   }
 

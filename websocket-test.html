@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .connecting { background-color: #fff3cd; color: #856404; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .data-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .metric {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            min-width: 120px;
+            text-align: center;
+        }
+        .log {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 WebSocket Connection Test</h1>
+        
+        <div id="status" class="status connecting">⏳ Connecting...</div>
+        
+        <div class="data-box">
+            <h2>📊 Connection Info</h2>
+            <p><strong>WebSocket URL:</strong> ws://localhost:3001</p>
+            <p><strong>Messages Received:</strong> <span id="messageCount">0</span></p>
+            <p><strong>Last Update:</strong> <span id="lastUpdate">Never</span></p>
+            <p><strong>Connection Time:</strong> <span id="connectionTime">-</span></p>
+        </div>
+
+        <div class="data-box" id="dataBox" style="display: none;">
+            <h2>📈 Latest Metrics</h2>
+            <div id="metrics">
+                <div class="metric">
+                    <strong>CPU</strong><br>
+                    <span id="cpu">-</span>%
+                </div>
+                <div class="metric">
+                    <strong>Memory</strong><br>
+                    <span id="memory">-</span>%
+                </div>
+                <div class="metric">
+                    <strong>Disk</strong><br>
+                    <span id="disk">-</span>%
+                </div>
+                <div class="metric">
+                    <strong>Temperature</strong><br>
+                    <span id="temperature">-</span>°C
+                </div>
+            </div>
+        </div>
+
+        <div class="data-box">
+            <h2>📝 Connection Log</h2>
+            <div id="log" class="log"></div>
+            <button onclick="clearLog()" style="margin-top: 10px;">Clear Log</button>
+            <button onclick="reconnect()" style="margin-top: 10px;">Reconnect</button>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let messageCount = 0;
+        let connectionStartTime = null;
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function updateStatus(status, className) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = status;
+            statusElement.className = `status ${className}`;
+        }
+
+        function updateConnectionTime() {
+            if (connectionStartTime) {
+                const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+                document.getElementById('connectionTime').textContent = `${elapsed}s`;
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function connectWebSocket() {
+            log('🔌 Attempting to connect to WebSocket...');
+            updateStatus('⏳ Connecting...', 'connecting');
+            
+            try {
+                ws = new WebSocket('ws://localhost:3001');
+                
+                ws.onopen = function(event) {
+                    log('✅ WebSocket connected successfully!');
+                    updateStatus('✅ Connected', 'connected');
+                    connectionStartTime = Date.now();
+                    
+                    // Update connection time every second
+                    setInterval(updateConnectionTime, 1000);
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        messageCount++;
+                        
+                        document.getElementById('messageCount').textContent = messageCount;
+                        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                        
+                        if (message.type === 'metrics' && message.data) {
+                            log(`📊 Received metrics data`);
+                            
+                            // Show data box
+                            document.getElementById('dataBox').style.display = 'block';
+                            
+                            // Update metrics
+                            document.getElementById('cpu').textContent = message.data.cpu || '-';
+                            document.getElementById('memory').textContent = message.data.memory?.percentage || '-';
+                            document.getElementById('disk').textContent = message.data.disk?.percentage || '-';
+                            document.getElementById('temperature').textContent = message.data.temperature || '-';
+                        } else {
+                            log(`📨 Received message: ${message.type}`);
+                        }
+                    } catch (error) {
+                        log(`❌ Error parsing message: ${error.message}`);
+                    }
+                };
+                
+                ws.onclose = function(event) {
+                    log(`🔌 WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason || 'Unknown'}`);
+                    updateStatus('🔴 Disconnected', 'disconnected');
+                    connectionStartTime = null;
+                    
+                    // Auto-reconnect after 3 seconds
+                    setTimeout(() => {
+                        if (ws.readyState === WebSocket.CLOSED) {
+                            connectWebSocket();
+                        }
+                    }, 3000);
+                };
+                
+                ws.onerror = function(error) {
+                    log(`❌ WebSocket error: ${error.message || 'Unknown error'}`);
+                    updateStatus('❌ Error', 'error');
+                };
+                
+            } catch (error) {
+                log(`❌ Failed to create WebSocket: ${error.message}`);
+                updateStatus('❌ Error', 'error');
+            }
+        }
+
+        function reconnect() {
+            if (ws) {
+                ws.close();
+            }
+            setTimeout(connectWebSocket, 100);
+        }
+
+        // Start connection when page loads
+        window.onload = function() {
+            log('🚀 Page loaded, starting WebSocket connection test...');
+            connectWebSocket();
+        };
+    </script>
+</body>
+</html>

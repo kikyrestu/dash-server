@@ -91,6 +91,7 @@ export class SystemAuth {
         });
       } else {
         // Regular user authentication
+        // Method 1: Use su command (most reliable)
         const command = `echo '${password.replace(/'/g, "'\\''")}' | ${this.suPath} - ${username} -c 'echo "AUTH_SUCCESS"' 2>/dev/null`;
         
         exec(command, (error, stdout, stderr) => {

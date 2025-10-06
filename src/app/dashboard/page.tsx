@@ -49,7 +49,16 @@ export default function Dashboard() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/verify');
+      const token = localStorage.getItem('auth_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/auth/verify', { headers });
       const data = await response.json();
 
       if (data.authenticated) {
@@ -67,10 +76,31 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const token = localStorage.getItem('auth_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        headers 
+      });
+      
+      // Clear localStorage
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      
       router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);
+      // Still clear localStorage and redirect on error
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      router.push('/login');
     }
   };
 

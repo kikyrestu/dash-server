@@ -39,6 +39,20 @@ export async function GET(request: NextRequest) {
       verification.user.isAdmin = groups.some(g => ['sudo', 'admin', 'wheel', 'root'].includes(g)) || hasSudo;
     } catch (error) {
       console.log('Could not get fresh user info:', error.message);
+      // For development mode, use basic user info from token
+      if (verification.user.authType === 'development') {
+        verification.user.userInfo = {
+          username: verification.user.username,
+          uid: verification.user.username === 'root' ? 0 : 1000,
+          gid: verification.user.username === 'root' ? 0 : 1000,
+          home: verification.user.username === 'root' ? '/root' : '/home/' + verification.user.username,
+          shell: '/bin/bash',
+          fullName: verification.user.username
+        };
+        verification.user.groups = verification.user.username === 'root' ? ['root'] : ['users'];
+        verification.user.hasSudo = verification.user.username === 'root';
+        verification.user.isAdmin = verification.user.username === 'root' || verification.user.username === 'admin';
+      }
     }
 
     return NextResponse.json({

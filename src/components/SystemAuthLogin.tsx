@@ -34,6 +34,11 @@ export default function SystemAuthLogin() {
       const data = await response.json();
 
       if (data.success) {
+        // Store token in localStorage for API calls
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+        }
         // Redirect to dashboard
         router.push('/dashboard');
       } else {
@@ -154,8 +159,14 @@ export default function SystemAuthLogin() {
             )}
             
             <div className="text-xs text-slate-500 text-center">
-              This uses your system's built-in authentication. 
-              Only users with valid system accounts can login.
+              <p className="mb-2">This uses your system's built-in authentication. 
+              Only users with valid system accounts can login.</p>
+              <div className="bg-slate-700 p-2 rounded text-slate-300">
+                <p className="font-semibold mb-1">Development Credentials:</p>
+                <p>Username: <span className="text-blue-400">root</span></p>
+                <p>Password: <span className="text-blue-400">devroot123</span></p>
+                <p className="text-xs mt-1 opacity-75">(Only works in development mode)</p>
+              </div>
             </div>
           </CardFooter>
         </Card>

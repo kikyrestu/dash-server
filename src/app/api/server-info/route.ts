@@ -2,11 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
+import { SystemAuth } from '@/lib/system-auth';
 
 const execAsync = promisify(exec);
+const systemAuth = new SystemAuth();
 
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const token = request.cookies.get('auth-token')?.value || 
+                 request.headers.get('authorization')?.split(' ')[1];
+
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const verification = systemAuth.verifyToken(token);
+    if (!verification.valid) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
     // Get system information
     const systemInfo = {
       hostname: os.hostname(),

@@ -50,7 +50,16 @@ const ServerInfoComponent = () => {
   useEffect(() => {
     const fetchServerInfo = async () => {
       try {
-        const response = await fetch('/api/server-info');
+        const token = localStorage.getItem('auth_token');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('/api/server-info', { headers });
         if (!response.ok) {
           throw new Error('Failed to fetch server information');
         }

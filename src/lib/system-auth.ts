@@ -45,6 +45,31 @@ export class SystemAuth {
   // Authenticate user dengan system commands
   async authenticate(username: string, password: string): Promise<AuthResult> {
     return new Promise((resolve) => {
+      // Development mode fallback for container environments
+      if (process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true') {
+        // Development credentials - only for development!
+        const devUsers = {
+          'root': 'devroot123',
+          'admin': 'devadmin123',
+          'demo': 'demopassword'
+        };
+        
+        if (devUsers[username] && password === devUsers[username]) {
+          const token = this.generateJWT(username);
+          resolve({
+            success: true,
+            token: token,
+            user: {
+              username: username,
+              authType: 'development',
+              loginTime: new Date().toISOString(),
+              isAdmin: username === 'root' || username === 'admin'
+            }
+          });
+          return;
+        }
+      }
+      
       // Special handling for root user
       if (username === 'root') {
         // Method 1: Direct root authentication with su

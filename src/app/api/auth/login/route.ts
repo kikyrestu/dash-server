@@ -42,15 +42,18 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'Authentication successful',
-      user: authResult.user
+      token: authResult.token, // Include token in response body for frontend storage
+      user: authResult.user,
+      developmentMode: process.env.DEV_MODE === 'true' || process.env.NODE_ENV === 'development'
     });
 
     // Set HTTP-only cookie dengan token
     response.cookies.set('auth-token', authResult.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 // 24 hours
+      sameSite: 'lax', // Changed from 'strict' to 'lax' for better compatibility
+      maxAge: 24 * 60 * 60, // 24 hours
+      path: '/' // Ensure cookie is available for all paths
     });
 
     return response;
